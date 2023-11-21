@@ -17,7 +17,7 @@ const defaultSizes = {
   20000: "XXL"
 };
 
-const UKRAINIAN_REGEX = /[\u0400-\u04FF]/;
+const UKRAINIAN_REGEX = /[\u0400-\u04FF]/g;
 
 const actions = ["opened", "synchronize", "reopened"];
 
