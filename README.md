@@ -57,7 +57,7 @@ The default sizes are:
 
 ```js
 {
-  0: "XXS",
+  1: "XXS",
   64: "XS",
   256: "S",
   1024: "M",
@@ -66,6 +66,8 @@ The default sizes are:
   65536: "XXL"
 }
 ```
+
+Pull requests with less than 1 character changed will not get a label – they are not considered translations.
 
 You can pass your own configuration by passing `sizes`
 

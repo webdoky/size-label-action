@@ -14,7 +14,7 @@ const globrex = __nccwpck_require__(3927);
 const Diff = __nccwpck_require__(1672);
 
 const defaultSizes = {
-  0: "XXS",
+  1: "XXS",
   64: "XS",
   256: "S",
   1024: "M",
