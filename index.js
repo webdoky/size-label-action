@@ -85,6 +85,14 @@ async function main() {
     .map(line => line.substring(1))
     .join("\n");
 
+  const hasUpdatedOldMarkdownFiles = diffData.some(
+    file =>
+      file.oldFileName &&
+      file.newFileName &&
+      file.oldFileName.endsWith(".md") &&
+      file.newFileName.endsWith(".md")
+  );
+
   const ukrainianCharactersNumber = (addedText.match(UKRAINIAN_REGEX) || []).length;
 
   console.log("Ukrainian characters:", ukrainianCharactersNumber);
@@ -95,7 +103,8 @@ async function main() {
 
   const { add, remove } = getLabelChanges(
     sizeLabel,
-    eventData.pull_request.labels
+    eventData.pull_request.labels,
+    hasUpdatedOldMarkdownFiles,
   );
 
   if (add.length === 0 && remove.length === 0) {
@@ -188,7 +197,7 @@ function getSizeLabel(changedLines, sizes = defaultSizes) {
   return label;
 }
 
-function getLabelChanges(newLabel, existingLabels) {
+function getLabelChanges(newLabel, existingLabels, hasUpdatedOldFiles) {
   const add = [newLabel];
   const remove = [];
   for (const existingLabel of existingLabels) {
@@ -199,6 +208,24 @@ function getLabelChanges(newLabel, existingLabels) {
       } else {
         remove.push(name);
       }
+    }
+  }
+  if (newLabel === "size/XXS") {
+    if (existingLabels.includes("translation")) {
+      remove.push("translation");
+    }
+  } else {
+    if (!existingLabels.includes("translation")) {
+      add.push("translation");
+    }
+  }
+  if (hasUpdatedOldFiles) {
+    if (!existingLabels.includes("update")) {
+      add.push("update");
+    }
+  } else {
+    if (existingLabels.includes("update")) {
+      remove.push("update");
     }
   }
   return { add, remove };
