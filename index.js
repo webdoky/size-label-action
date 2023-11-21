@@ -8,13 +8,16 @@ const globrex = require("globrex");
 const Diff = require("diff");
 
 const defaultSizes = {
-  0: "XS",
-  10: "S",
-  30: "M",
-  100: "L",
-  500: "XL",
-  1000: "XXL"
+  0: "XXS",
+  64: "XS",
+  256: "S",
+  1024: "M",
+  4096: "L",
+  16384: "XL",
+  65536: "XXL"
 };
+
+const UKRAINIAN_REGEX = /[\u0400-\u04FF]/;
 
 const actions = ["opened", "synchronize", "reopened"];
 
@@ -69,11 +72,25 @@ async function main() {
     }
   });
 
-  const changedLines = getChangedLines(isIgnored, pullRequestDiff.data);
-  console.log("Changed lines:", changedLines);
+  const diffData = Diff.parsePatch(pullRequestDiff.data);
+  // Get added text from every changed or added file
+  const addedText = diffData
+    .flatMap(file =>
+      isIgnored(file.oldFileName) && isIgnored(file.newFileName)
+        ? []
+        : file.hunks
+    )
+    .flatMap(hunk => hunk.lines)
+    .filter(line => line[0] === "+")
+    .map(line => line.substring(1))
+    .join("\n");
+
+  const ukrainianCharactersNumber = (addedText.match(UKRAINIAN_REGEX) || []).length;
+
+  console.log("Ukrainian characters:", ukrainianCharactersNumber);
 
   const sizes = getSizesInput();
-  const sizeLabel = getSizeLabel(changedLines, sizes);
+  const sizeLabel = getSizeLabel(ukrainianCharactersNumber, sizes);
   console.log("Matching label:", sizeLabel);
 
   const { add, remove } = getLabelChanges(
@@ -159,17 +176,6 @@ async function readFile(path) {
       }
     });
   });
-}
-
-function getChangedLines(isIgnored, diff) {
-  return Diff.parsePatch(diff)
-    .flatMap(file =>
-      isIgnored(file.oldFileName) && isIgnored(file.newFileName)
-        ? []
-        : file.hunks
-    )
-    .flatMap(hunk => hunk.lines)
-    .filter(line => line[0] === "+" || line[0] === "-").length;
 }
 
 function getSizeLabel(changedLines, sizes = defaultSizes) {

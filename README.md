@@ -1,8 +1,6 @@
 # size-label-action
 
-GitHub action to assign labels based on pull request change sizes.
-
-Labels are taken from https://github.com/kubernetes/kubernetes/labels?q=size
+GitHub action to assign labels based on number of added Ukrainian characters.
 
 ## Usage
 
@@ -19,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: size-label
-        uses: "pascalgn/size-label-action@v0.5.0"
+        uses: "webdoky/size-label-action@main"
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
 ```
@@ -29,7 +27,7 @@ jobs:
 Export both `GITHUB_TOKEN` and `REPO` (e.g. `my-username/my-repository`) and run the script below:
 
 ```bash
-for size in XL XXL XS S M L; do
+for size in XL XXL XXS XS S M L; do
   curl -sf -H "Authorization: Bearer $GITHUB_TOKEN" "https://api.github.com/repos/kubernetes/kubernetes/labels/size/$size" |
     jq '. | { "name": .name, "color": .color, "description": .description }' |
     curl -sfXPOST -d @- -H "Authorization: Bearer $GITHUB_TOKEN" https://api.github.com/repos/$REPO/labels
@@ -48,9 +46,9 @@ The following environment variables are supported:
 You can configure the environment variables in the workflow file like this:
 
 ```yaml
-        env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-          IGNORED: ".*\n!.gitignore\nyarn.lock\ngenerated/**"
+env:
+  GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+  IGNORED: ".*\n!.gitignore\nyarn.lock\ngenerated/**"
 ```
 
 ## Custom sizes
@@ -59,12 +57,13 @@ The default sizes are:
 
 ```js
 {
-  "0": "XS",
-  "10": "S",
-  "30": "M",
-  "100": "L",
-  "500": "XL",
-  "1000": "XXL"
+  0: "XXS",
+  64: "XS",
+  256: "S",
+  1024: "M",
+  4096: "L",
+  16384: "XL",
+  65536: "XXL"
 }
 ```
 
