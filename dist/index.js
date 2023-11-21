@@ -15,12 +15,12 @@ const Diff = __nccwpck_require__(1672);
 
 const defaultSizes = {
   1: "XXS",
-  64: "XS",
-  256: "S",
-  1024: "M",
-  4096: "L",
-  16384: "XL",
-  65536: "XXL"
+  10: "XS",
+  100: "S",
+  1000: "M",
+  5000: "L",
+  10000: "XL",
+  20000: "XXL"
 };
 
 const UKRAINIAN_REGEX = /[\u0400-\u04FF]/;
