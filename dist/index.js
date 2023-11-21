@@ -86,6 +86,7 @@ async function main() {
       for (const hunk of file.hunks) {
         for (const line of hunk.lines) {
           if (line[0] === "+") {
+            console.log("Added line:", line);
             ukrainianCharactersNumber += (line.match(UKRAINIAN_REGEX) || []).length;
           }
         }
