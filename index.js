@@ -198,7 +198,10 @@ function getSizeLabel(changedLines, sizes = defaultSizes) {
 }
 
 function getLabelChanges(newLabel, existingLabels, hasUpdatedOldFiles) {
-  const add = [newLabel];
+  const add = [];
+  if (newLabel) {
+    add.push(newLabel);
+  }
   const remove = [];
   for (const existingLabel of existingLabels) {
     const { name } = existingLabel;
