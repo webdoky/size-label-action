@@ -73,17 +73,21 @@ async function main() {
   });
 
   const diffData = Diff.parsePatch(pullRequestDiff.data);
-  // Get added text from every changed or added file
-  const addedText = diffData
-    .flatMap(file =>
-      isIgnored(file.oldFileName) && isIgnored(file.newFileName)
-        ? []
-        : file.hunks
-    )
-    .flatMap(hunk => hunk.lines)
-    .filter(line => line[0] === "+")
-    .map(line => line.substring(1))
-    .join("\n");
+  let ukrainianCharactersNumber = 0;
+  for (const file of diffData) {
+    if (!isIgnored(file.oldFileName) || !isIgnored(file.newFileName)) {
+      const oldValue = ukrainianCharactersNumber;
+      for (const hunk of file.hunks) {
+        for (const line of hunk.lines) {
+          if (line[0] === "+") {
+            ukrainianCharactersNumber += (line.match(UKRAINIAN_REGEX) || []).length;
+          }
+        }
+      }
+      console.log("Added Ukrainian characters in file", file.newFileName, ":", ukrainianCharactersNumber - oldValue);
+    }
+  }
+  console.log("Ukrainian characters:", ukrainianCharactersNumber);
 
   const hasUpdatedOldMarkdownFiles = diffData.some(
     file =>
@@ -92,11 +96,6 @@ async function main() {
       file.oldFileName.endsWith(".md") &&
       file.newFileName.endsWith(".md")
   );
-
-  const ukrainianCharactersNumber = (addedText.match(UKRAINIAN_REGEX) || []).length;
-
-  console.log("Ukrainian characters:", ukrainianCharactersNumber);
-
   const sizes = getSizesInput();
   const sizeLabel = getSizeLabel(ukrainianCharactersNumber, sizes);
   console.log("Matching label:", sizeLabel);
