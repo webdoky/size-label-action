@@ -80,7 +80,7 @@ async function main() {
       for (const hunk of file.hunks) {
         for (const line of hunk.lines) {
           if (line[0] === "+") {
-            console.log("Added line:", line);
+            // console.log("Added line:", line);
             ukrainianCharactersNumber += (line.match(UKRAINIAN_REGEX) || []).length;
           }
         }
@@ -203,6 +203,9 @@ function getLabelChanges(newLabel, existingLabels, hasUpdatedOldFiles) {
     add.push(newLabel);
   }
   const remove = [];
+  if (!newLabel) {
+    remove.push("translation");
+  }
   for (const existingLabel of existingLabels) {
     const { name } = existingLabel;
     if (name.startsWith("size/")) {
