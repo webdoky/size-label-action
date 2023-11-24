@@ -97,6 +97,13 @@ async function main() {
       file.oldFileName.endsWith(".md") &&
       file.newFileName.endsWith(".md")
   );
+  const hasNonTranslationChanges = diffData.some(
+    file =>
+      file.newFileName &&
+      !file.newFileName.includes("files/") &&
+      !file.newFileName.includes("files\\")
+  );
+
   const sizes = getSizesInput();
   const sizeLabel = getSizeLabel(ukrainianCharactersNumber, sizes);
   console.log("Matching label:", sizeLabel);
@@ -105,6 +112,7 @@ async function main() {
     sizeLabel,
     eventData.pull_request.labels,
     hasUpdatedOldMarkdownFiles,
+    hasNonTranslationChanges,
   );
 
   if (add.length === 0 && remove.length === 0) {
@@ -197,7 +205,7 @@ function getSizeLabel(changedLines, sizes = defaultSizes) {
   return label;
 }
 
-function getLabelChanges(newLabel, existingLabels, hasUpdatedOldFiles) {
+function getLabelChanges(newLabel, existingLabels, hasUpdatedOldFiles, hasNonTranslationChanges) {
   const add = [];
   if (newLabel) {
     add.push(newLabel);
@@ -205,6 +213,11 @@ function getLabelChanges(newLabel, existingLabels, hasUpdatedOldFiles) {
   const remove = [];
   if (!newLabel) {
     remove.push("translation");
+  }
+  if (hasNonTranslationChanges) {
+    add.push("enhancement");
+  } else {
+    remove.push("enhancement");
   }
   for (const existingLabel of existingLabels) {
     const { name } = existingLabel;
